@@ -4,75 +4,103 @@ from datetime import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 from os import getenv
+import random
 
-# 1. SETUP DU BOT
+# 1. SETUP
 
 print("====================================")
 print("Bot : Kageki / Version : 0.1")
 print("====================================\n")
 
 
-# On charge le fichier settings.env contenant nos variables d'environnement
+# loeading env file 
 load_dotenv(dotenv_path='.env')
 
-# On va chercher la valeur DISCORD_TOKEN dans le fichier .env
+# looking in the DISCORD_TOKEN stored in .env
 DISCORD_TOKEN = getenv("TOKEN")
-# Variable contenant l'ID de notre serveur
+# server id
 GUILD_ID = "guild-id"
 
-# Créer un object Intents avec toutes les permissionss
+# create an object with all intents
 intents = discord.Intents.all()
-# Créer notre variable Client représentant le bot discord avec son préfixe et ses intentions
+# create a variable storing the bot's prefix and permissions (intents)
 client = commands.Bot(command_prefix="!", intents=intents)
-# Créer l'arbre de commande responsable de la gestion de toutes les commandes du bot discord
+# tree that store all slash commands
 tree = client.tree
 
+httpCode = [100,101,102,103,200,201,202,203,204,205,206,207,
+            208,214,226,300,301,302,303,304,305,307,308,400,
+            401,402,403,404,405,406,407,408,409,410,411,412,
+            413,414,415,416,417,418,419,420,421,422,423,424,
+            425,426,427,428,429,431,444,450,451,495,496,497,
+            498,499,500,501,502,503,504,506,507,508,509,510,
+            511,521,522,523,525,530,599]
 # 2. METHODES DU BOT
 
 @client.event
 async def on_ready():
     """
-    Methode qui se lance lorsque le bot discord est en ligne 
+    Function launched when the bot is started
     """
-    print(f'\n[LOG] {client.user} est connecté à Discord')
+    print(f'\n[LOG] {client.user} is connected to Discord')
 
     # PARAMETRE DU STATUT 
-    # choix possibles : 
-    #   online -> "en ligne" (par defaut) 
-    #   idle -> "inactif" 
-    #   dnd / do_not_disturb -> "ne pas deranger" 
-    #   invisible -> "hors ligne"
+    # choices : 
+    #   online (default) 
+    #   idle 
+    #   dnd / do_not_disturb 
+    #   invisible
 
-    print("[LOG] Mise en place du statut discord")
+    print("[LOG] Setting discord's status")
     await client.change_presence(activity=discord.Streaming(url="https://www.google.com/",name="𝑾𝒂𝒕𝒄𝒉𝒊𝒏𝒈 𝒕𝒉𝒆 𝒓𝒂𝒊𝒏 ☔"),status=discord.Status.dnd)
 
-    print("[LOG] Mise en place de l'arbre de commande")
+    print("[LOG] Loading tree commands")
     await client.tree.sync()
 
-    print("[LOG] Setup terminé ! :D")
+    print("[LOG] setup finished")
     print("\n============== HISTORIQUE ==============\n")
 
 @client.event
 async def on_message(message):
     """
-    Méthode qui se lance lorsqu'un message est envoyé
+    Function launched for every message sent
     """
 
-    # exclure les messages du bot discord
+    # ignore all messages from our bot
     if message.author == client.user:
         return
     
     print(f"[MESSAGE] {message.author} : {message.content}")
-
-    # TODO : API call and implemtation of features about analyzing the message
-
     return
 
 @client.tree.command(name="rain",description="if you ask for the rain, you shall receive")
 async def slash_command(interaction:discord.Integration):
+    
+    log("/rain",interaction)
     file = 'assets/gif/rain.gif'
     with open(file, 'rb') as fp:
         return await interaction.response.send_message(file=discord.File(fp, file))
 
-# Lancement du bot avec le token
+@client.tree.command(name="http-code",description="what HTTP code will you get ?")
+async def slash_command(interaction:discord.Integration):
+    
+    log("/http-code",interaction)
+    return await interaction.response.send_message("https://http.cat/" + str(random.choice(httpCode)))
+
+
+def log(name:str,interaction:discord.Integration):
+    """
+    Method used for debugging purposes with basic logging
+    """
+    current = datetime.now()
+    current_time = current.strftime("%H:%M:%S")
+    # in private message
+    if interaction.guild is None:
+        print(f"[{current_time}]  Private message > {interaction.user.name} > {name}")
+    # in a server
+    else:
+        print(f"[{current_time}]  {interaction.guild} > {interaction.user.name} > {name}")
+
+
+# starting the bot with his secret token
 client.run(DISCORD_TOKEN)
