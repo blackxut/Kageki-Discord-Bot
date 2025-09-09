@@ -87,6 +87,11 @@ async def slash_command(interaction:discord.Integration):
     log("/http-code",interaction)
     return await interaction.response.send_message("https://http.cat/" + str(random.choice(httpCode)))
 
+@client.tree.command(name="avatar",description="show the user's avatar")
+async def slash_command(interaction:discord.Integration,member:discord.Member):
+
+    log("/avatar",interaction)
+    return await interaction.response.send_message(member.display_avatar)
 
 def log(name:str,interaction:discord.Integration):
     """
