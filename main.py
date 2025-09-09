@@ -1,10 +1,13 @@
-# imports publics :
+# public imports
 import discord
 from datetime import datetime
 from discord.ext import commands
 from dotenv import load_dotenv
 from os import getenv
 import random
+
+# private imports
+from embedMessages import embed_info
 
 # 1. SETUP
 
@@ -92,6 +95,12 @@ async def slash_command(interaction:discord.Integration,member:discord.Member):
 
     log("/avatar",interaction)
     return await interaction.response.send_message(member.display_avatar)
+
+@client.tree.command(name="info",description="describe an user")
+async def slash_command(interaction:discord.Integration,member:discord.Member):
+    
+    log("/info",interaction)
+    return await interaction.response.send_message(embed=embed_info(interaction,member))
 
 def log(name:str,interaction:discord.Integration):
     """
