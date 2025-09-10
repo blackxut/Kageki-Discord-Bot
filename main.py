@@ -8,6 +8,7 @@ import random
 
 # private imports
 from embedMessages import embed_info
+from weatherAPI import getAqi
 
 # 1. SETUP
 
@@ -20,7 +21,7 @@ print("====================================\n")
 load_dotenv(dotenv_path='.env')
 
 # looking in the DISCORD_TOKEN stored in .env
-DISCORD_TOKEN = getenv("TOKEN")
+DISCORD_TOKEN = getenv("DISCORD_TOKEN")
 # server id
 GUILD_ID = "guild-id"
 
@@ -101,6 +102,16 @@ async def slash_command(interaction:discord.Integration,member:discord.Member):
     
     log("/info",interaction)
     return await interaction.response.send_message(embed=embed_info(interaction,member))
+
+@client.tree.command(name="air-quality",description="get the air's quality of a city")
+async def slash_command(interaction:discord.Integration,city:str):
+
+    log("/air-quality",interaction)
+    result = getAqi(city)
+    if result[0] == -1:
+        return await interaction.response.send_message("internal error")
+    else:
+        return await interaction.response.send_message(f"The air quality of {city} is : `{result[1]}` ({result[0]})")
 
 def log(name:str,interaction:discord.Integration):
     """
