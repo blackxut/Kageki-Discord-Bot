@@ -109,7 +109,7 @@ async def slash_command(interaction:discord.Integration,city:str):
     log("/air-quality",interaction)
     result = getAqi(city)
     if result[0] == -1:
-        return await interaction.response.send_message("internal error")
+        return await interaction.response.send_message(f":warning: Error : `{result[1]}`")
     else:
         return await interaction.response.send_message(f"The air quality of {city} is : `{result[1]}` ({result[0]})")
 

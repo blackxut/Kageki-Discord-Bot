@@ -20,10 +20,12 @@ def getAqi(city:str) -> str:
     # request the API with our TOKEN and the city
     r = requests.get(f"http://api.waqi.info/feed/{city}/?token={WEATHER_API_KEY}")
 
-    if r.status_code != 200:
-        return -1,"internal error"
-
     jsonData = r.json() # convert to JSON
+    
+    # handling error in the response
+    if jsonData['status'] == 'error':
+        return -1,jsonData['data']
+
     result = jsonData['data']['aqi'] # get the AQI value
     index = getIndex(result) # get the index
 
