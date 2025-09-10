@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from os import getenv
 import requests
-from jsonpath_ng import jsonpath, parse
 
 # loeading env file 
 load_dotenv(dotenv_path='.env')
