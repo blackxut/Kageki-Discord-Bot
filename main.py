@@ -11,6 +11,7 @@ import time
 # private imports
 from embedMessages import embed_info, embed_leaderboard, embed_accusation
 from weatherAPI import getAqi
+from sqlRequests import getLeaderboard
 
 # 1. SETUP
 
@@ -25,12 +26,6 @@ load_dotenv(dotenv_path='.env')
 DISCORD_TOKEN = getenv("DISCORD_TOKEN")
 DISCORD_AUTHOR = getenv("DISCORD_AUTHOR")
 DISCORD_BOT = getenv("DISCORD_BOT")
-MYSQL_USER = getenv("MYSQL_USER")
-MYSQL_PASSWORD = getenv("MYSQL_PASSWORD")
-MYSQL_DATABASE = getenv("MYSQL_DATABASE")
-
-# MySQL Configuration :
-db_config = {"user": MYSQL_USER,"password": MYSQL_PASSWORD,"database": MYSQL_DATABASE}
 
 httpCode = [100,101,102,103,200,201,202,203,204,205,206,207,
             208,214,226,300,301,302,303,304,305,307,308,400,
@@ -61,15 +56,6 @@ def log(name:str,interaction:discord.Interaction):
     # in a server
     else:
         print(f"[{current_time}]  {interaction.guild} > {interaction.user.name} > {name}")
-
-def get_db_connection():
-    """Method used to initialize a connection with the MySQL local server"""
-    try:
-        connector = mysql.connector.connect(**db_config)
-        return connector
-    except mysql.connector.Error as err:
-        print(f"Error while connecting to MySQL : {err}")
-        return None
 
 @client.event
 async def on_ready():
@@ -142,6 +128,15 @@ async def slash_command(interaction:discord.Interaction,city:str):
         return await interaction.response.send_message(f":warning: Error : `{result[1]}`")
     else:
         return await interaction.response.send_message(f"The air quality of {city} is : `{result[1]}` ({result[0]})")
+
+@client.tree.command(name="leaderboard",description="display the current leaderboard")
+async def slash_command(interaction:discord.Interaction):
+    log("/leaderboard",interaction)
+    result = getLeaderboard()
+    if result is None:
+        await interaction.response.send_message("Something went wrong :thinking:")
+    else:
+        await interaction.response.send_message(embed=embed_leaderboard(result))
 
 # starting the bot with his secret token
 client.run(DISCORD_TOKEN)
