@@ -1,6 +1,6 @@
 import discord
 
-def embed_info(interaction:discord.Integration,user:discord.Member) -> discord.Embed:
+def embed_info(interaction:discord.Interaction,user:discord.Member) -> discord.Embed:
 
     # TODO : refactoring + checking if bot, if in guild
     
